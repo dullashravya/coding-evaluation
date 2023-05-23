@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace MyOrganization
 {
@@ -17,16 +15,32 @@ namespace MyOrganization
 
         protected abstract Position CreateOrganization();
 
-        /**
-         * hire the given person as an employee in the position that has that title
-         * 
-         * @param person
-         * @param title
-         * @return the newly filled position or empty if no position has that title
-         */
         public Position? Hire(Name person, string title)
         {
-            //your code here
+            if (person == null)
+                throw new Exception("Person cannot be null");
+            if (string.IsNullOrEmpty(title))
+                throw new Exception("Title cannot be null or empty");
+
+            return HireHelper(root, person, title);
+        }
+
+        private Position? HireHelper(Position position, Name person, string title)
+        {
+            if (position.GetTitle() == title && !position.IsFilled())
+            {
+                Employee newEmployee = new Employee(new Random().Next(), person); // assuming identifier is random
+                position.SetEmployee(newEmployee);
+                return position;
+            }
+
+            foreach (var report in position.GetDirectReports())
+            {
+                var filledPosition = HireHelper(report, person, title);
+                if (filledPosition != null)
+                    return filledPosition;
+            }
+
             return null;
         }
 
